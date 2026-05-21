@@ -1,19 +1,122 @@
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 import json
+import os
 
-# "title": "Начало",
-    "genre": "Фантастика",
-    "year": 2010,
-    "rating": 8.8
+# --- Настройки ---
+DATA_FILE = "movies.json"
+CURRENT_YEAR = 2026 # Обновите при необходимости
+
+class MovieLibraryApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Личная кинотека")
+        self.root.geometry("800x500")
+        self.root.resizable(True, True)
+        
+        self.movies = []
+        self.load_data()
+
+        # --- Создание виджетов ---
+        self.create_widgets()
+        self.update_table()
+
+    def create_widgets(self):
+        # Рамка для ввода данных
+        input_frame = ttk.LabelFrame(self.root, text="Добавить новый фильм", padding="10")
+        input_frame.pack(fill="x", padx=10, pady=5)
+
+        # Поля ввода
+        ttk.Label(input_frame, text="Название:").grid(row=0, column=0, sticky="w", pady=2)
+        self.title_entry = ttk.Entry(input_frame, width=40)
+        self.title_entry.grid(row=0, column=1, columnspan=3, sticky="ew", pady=2)
+
+        ttk.Label(input_frame, text="Жанр:").grid(row=1, column=0, sticky="w", pady=2)
+        self.genre_var = tk.StringVar()
+        self.genre_combobox = ttk.Combobox(input_frame, textvariable=self.genre_var, 
+                                          values=["Боевик", "Драма", "Комедия", "Фантастика", "Ужасы", "Триллер"], 
+                                          state="readonly", width=30)
+        self.genre_combobox.grid(row=1, column=1, columnspan=3, sticky="ew", pady=2)
+        self.genre_combobox.current(0)
+
+        ttk.Label(input_frame, text="Год:").grid(row=2, column=0, sticky="w", pady=2)
+        self.year_entry = ttk.Entry(input_frame, width=15)
+        self.year_entry.grid(row=2, column=1, sticky="w", pady=2)
+
+        ttk.Label(input_frame, text="Рейтинг:").grid(row=2, column=2, sticky="w", padx=(20,0), pady=2)
+        self.rating_entry = ttk.Entry(input_frame, width=10)
+        self.rating_entry.grid(row=2, column=3, sticky="w", pady=2)
+
+        # Кнопка добавления
+        ttk.Button(input_frame, text="Добавить фильм", command=self.add_movie).grid(row=3, column=0, columnspan=4, pady=10)
+
+        # Рамка для таблицы и фильтров
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=5)
+
+        # Фильтры
+        filter_frame = ttk.Frame(main_frame)
+        filter_frame.pack(fill="x")
+
+        ttk.Label(filter_frame, text="Фильтр по жанру:").pack(side="left")
+        self.filter_genre_var = tk.StringVar()
+        filter_genre_combo = ttk.Combobox(filter_frame, textvariable=self.filter_genre_var,
+                                          values=["Все"] + ["Боевик", "Драма", "Комедия", "Фантастика", "Ужасы", "Триллер"],
+                                          state="readonly", width=15)
+        filter_genre_combo.pack(side="left", padx=(0, 10))
+        filter_genre_combo.current(0)
+
+        ttk.Label(filter_frame, text="Фильтр по году:").pack(side="left")
+        self.filter_year_entry = ttk.Entry(filter_frame, width=8)
+        self.filter_year_entry.pack(side="left", padx=(0, 10))
+
+        ttk.Button(filter_frame, text="Применить фильтр", command=self.apply_filter).pack(side="left")
+        
+        # Таблица (Treeview)
+        self.columns = ("title", "genre", "year", "rating")
+        self.tree = ttk.Treeview(main_frame, columns=self.columns, show="headings")
+        
+        self.tree.heading("title", text="Название")
+        self.tree.heading("genre", text="Жанр")
+        self.tree.heading("year", text="Год")
+        self.tree.heading("rating", text="Рейтинг")
+        
+        self.tree.column("title", width=300)
+        
+        # Полосы прокрутки
+        yscrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.tree.yview)
+        xscrollbar = ttk.Scrollbar(main_frame, orient="horizontal", command=self.tree.xview)
+        
+        self.tree.configure(yscroll=yscrollbar.set, xscroll=xscrollbar.set)
+        
+        self.tree.pack(fill="both", expand=True)
+        
+    def load_data(self):
+        """Загрузка данных из JSON файла при запуске."""
+        if os.path.exists(DATA_FILE):
+            try:
+                with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                    self.movies = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                messagebox.showerror("Ошибка", "Не удалось прочитать файл данных. Будет создан новый.")
+                self.movies = []
+
+    def save_data(self):
+        """Сохранение данных в JSON файл."""
+        try:
+            with open(DATA_FILE, 'w', encoding='utf-8') as f:
+                json.dump(self.movies, f, ensure_ascii=False, indent=4)
+            messagebox.showinfo("Успех", "Данные успешно сохранены!")
+            print("Данные сохранены в JSON.")
+            # Здесь вы можете добавить команду git commit/push в реальном проекте
+            # os.system('git add . && git commit -m "Auto-commit: save data"')
+            # os.system('git push')
+            
+            # Для демонстрации работы Git в README:
+            with open('commit_log.txt', 'a') as log:
+                log.write(f"Изменения сохранены: {len(self.movies)} фильмов\n")
+            os.system('git add commit_log.txt')
+            os.system('git commit -m "Auto-commit: save data"')
 
 
-root = tk.Tk()
-root.title("Movie Library")
-# "title": "Интерстеллар",
-    "genre": "Фантастика",
-    "year": 2014,
-    "rating": 8.6
 
-root.mainloop()
