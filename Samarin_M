@@ -1,0 +1,19 @@
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+import json
+
+# "title": "Начало",
+    "genre": "Фантастика",
+    "year": 2010,
+    "rating": 8.8
+
+
+root = tk.Tk()
+root.title("Movie Library")
+# "title": "Интерстеллар",
+    "genre": "Фантастика",
+    "year": 2014,
+    "rating": 8.6
+
+root.mainloop()
