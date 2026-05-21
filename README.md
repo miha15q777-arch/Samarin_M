@@ -1,4 +1,4 @@
-# Movie Library: Личная кинотека
+# GitHub User Finder
 
 **Автор:** Михаил Самарин
 **Ссылка на репозиторий:** https://github.com/miha15q777-arch/Samarin_M/edit/main/README.md
