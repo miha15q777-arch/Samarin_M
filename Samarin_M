@@ -117,6 +117,3 @@ class MovieLibraryApp:
                 log.write(f"Изменения сохранены: {len(self.movies)} фильмов\n")
             os.system('git add commit_log.txt')
             os.system('git commit -m "Auto-commit: save data"')
-
-
-
